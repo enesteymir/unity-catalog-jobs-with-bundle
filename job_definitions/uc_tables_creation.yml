@@ -1,7 +1,7 @@
 resources:
   jobs:
-    unity_catalog_tables_updater:
-      name: "Customer-360 Unity Catalog Tables Updater"
+    unity_catalog_tables_creator:
+      name: "Customer-360 Unity Catalog Tables Creator"
 
       schedule:
         quartz_cron_expression: "0 0 5 * * ? *"
