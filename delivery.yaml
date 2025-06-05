@@ -37,41 +37,8 @@ databricks_parameters_sp_prod: &DB_PARAMS_SP_PROD
 
 pipeline:
 
-    # Checking whether the branch is up-to-date before merge
-    - id: check-branch-up-to-date
-      desc: Check that feature branch is in sync with main before deploying AWS changes to dev environment
-      type: script
-      vm_config:
-        <<: *VM_PARAMS
-      when:
-        event: pull_request
-      commands:
-        - desc: check-feature-branch-in-sync-with-main-before-aws
-          cmd: |
-            git checkout #{CDP_SOURCE_BRANCH}
-            CHANGED_INFRA_FILES=$(git diff --name-only main | grep deploy/ || true)
-            if [ -z "$CHANGED_INFRA_FILES" ]
-            then
-                exit 0
-            fi
-            COMMIT_BEFORE=$(git log -n 1 --oneline)
-            git fetch
-            trap "git gh-comment 'The branch MUST be up to date with main branch to continue with deployment'; exit 1" ERR
-            git merge origin/main
-            COMMIT_AFTER=$(git log -n 1 --oneline)
-            if [ "$COMMIT_BEFORE" != "$COMMIT_AFTER" ]; then
-              git gh-comment 'The branch MUST be up to date with main branch to continue deployment'
-              exit 1
-            else
-              echo "Branch Up to Date with main branch"
-            fi
-
-
-
-
     - id: bundle-deploy-test
       desc: Deploy the resource in the test mode
-      depends_on: [ check-branch-up-to-date ]
       type: script
       vm_config:
         <<: *VM_PARAMS
