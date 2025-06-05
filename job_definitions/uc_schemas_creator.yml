@@ -46,7 +46,7 @@ resources:
           job_cluster_key: "Create_UC_Schemas_Job_Cluster"
           python_wheel_task:
             package_name: customer-data-platform
-            entry_point: create_schemas_job
+            entry_point: uc_schemas_creator
             named_parameters: { env: "${var.environment}" }
           libraries:
             - whl: ../dist/*.whl
