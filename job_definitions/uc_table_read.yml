@@ -1,7 +1,7 @@
 resources:
   jobs:
-    example-sp-read-uc-job:
-      name: "Customer-360 SP reads catalog Example"
+    example-uc-table-read:
+      name: "Message Data Count Job"
       description: "This job is created by Bundle Assets."
 
       schedule:
@@ -13,7 +13,7 @@ resources:
         on_failure: ${var.default_failure_notifications}
 
       job_clusters:
-        - job_cluster_key: "SP_Read_Job_Cluster"
+        - job_cluster_key: "Read_Job_Cluster"
           new_cluster:
             spark_version: "14.3.x-scala2.12"
             runtime_engine: "STANDARD"                                          
@@ -37,11 +37,11 @@ resources:
               z_team: "t-rex"
 
       tasks:
-        - task_key: "SP_Read_UC_Job_Task"
-          job_cluster_key: "SP_Read_Job_Cluster"
+        - task_key: "Read_UC_Job_Task"
+          job_cluster_key: "Read_Job_Cluster"
           python_wheel_task:
             package_name: customer-data-platform
-            entry_point: example_sp_read_uc
+            entry_point: uc_table_read
             named_parameters: { env: "${var.environment}" }
           libraries:
             - whl: ../dist/*.whl
