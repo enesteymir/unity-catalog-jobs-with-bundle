@@ -30,4 +30,4 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 uc_table_read = "job_scripts.read_message_data:main"
-create_schemas = "job_scripts.create_schemas:main"
+uc_schemas_creator = "job_scripts.create_schemas:main"
