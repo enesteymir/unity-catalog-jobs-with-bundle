@@ -31,8 +31,5 @@ build-backend = "poetry.core.masonry.api"
 
 
 [tool.poetry.scripts]
-hello_europe_job = "customer_data_sources.hello_europe_job:main"
-hello_asia_job = "customer_data_sources.hello_asia_job:main"
-hello_world_job = "customer_data_sources.hello_world_job:main"
 example_sp_read_uc = "customer_data_sources.example_sp_read_env_uc_job:main"
 create_schemas_job = "unity_catalog_tables_updater.create_schemas_job:main"
