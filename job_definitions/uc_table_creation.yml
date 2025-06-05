@@ -22,5 +22,5 @@ resources:
           sql_task:
             warehouse_id: ${var.warehouse_id}
             file:
-              path: ${var.workspace_path}/files/job_sources/job_scripts/${var.environment}_create_external_tables.sql
+              path: ${var.workspace_path}/files/job_sources/job_scripts/${var.environment}_env_create_external_tables.sql
               source: WORKSPACE
