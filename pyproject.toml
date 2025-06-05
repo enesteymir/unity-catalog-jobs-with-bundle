@@ -32,4 +32,4 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 example_sp_read_uc = "customer_data_sources.example_sp_read_env_uc_job:main"
-create_schemas_job = "unity_catalog_tables_updater.create_schemas_job:main"
+create_schemas_job = "unity_catalog_tables_updater.create_schemas:main"
