@@ -13,16 +13,16 @@ environments:
     sp_application_id: 883dbeee-bcb7-4678-97da-34442708fea5
     team_name: acc-team-tracking-t-rex-test
     team_privileges: [MANAGE]
-    human_users: [hoa.luong.ton@zalando.de, david.cahill@zalando.ie, conor.gallagher@zalando.ie]
+    human_users: [akon.pitbulln@zalando.de, cristiano.ronaldo@zalando.ie, drogba.sneijder@zalando.ie]
 
   uat:
     sp_application_id: d81d6eb5-413a-4cd0-81de-1aa01a14fe83
     team_name: acc-team-tracking-t-rex-prod
     team_privileges: [SELECT]
-    human_users: [hoa.luong.ton@zalando.de, david.cahill@zalando.ie, conor.gallagher@zalando.ie]
+    human_users: [akon.pitbulln@zalando.de, cristiano.ronaldo@zalando.ie, drogba.sneijder@zalando.ie]
 
   prod:
     sp_application_id: 7d0119ee-45e1-49ca-be68-7c3e0baec696
     team_name: acc-team-tracking-t-rex-prod
     team_privileges: [SELECT]
-    human_users: [hoa.luong.ton@zalando.de, david.cahill@zalando.ie, conor.gallagher@zalando.ie]
+    human_users: [akon.pitbulln@zalando.de, cristiano.ronaldo@zalando.ie, drogba.sneijder@zalando.ie]
