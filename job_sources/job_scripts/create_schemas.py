@@ -3,7 +3,7 @@ import yaml
 import logging
 from pyspark.sql import SparkSession
 
-def load_config(path="uc_schemas.yaml"):
+def load_config(path="config_uc_schemas.yaml"):
     with open(path) as f:
         return yaml.safe_load(f)
 
