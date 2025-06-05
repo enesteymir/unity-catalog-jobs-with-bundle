@@ -5,9 +5,7 @@ description = "Customer360 Project to build meaningful customer data points"
 authors = ["Tracking Data Collection <team-tracking-data-collection@zalando.de>"]
 readme = "README.md"
 packages = [
-    { include = "customer_data_sources", from = "job_sources" },
-    { include = "unity_catalog_tables_updater", from = "job_sources" },
-    { include = "tests", from = "job_sources" }
+    { include = "job_scripts", from = "job_sources" }
 ]
 
 # Include, in the python bundles, all files that impact the software behaviour
@@ -31,5 +29,5 @@ build-backend = "poetry.core.masonry.api"
 
 
 [tool.poetry.scripts]
-example_sp_read_uc = "customer_data_sources.example_sp_read_env_uc_job:main"
-create_schemas_job = "unity_catalog_tables_updater.create_schemas:main"
+uc_table_read = "job_scripts.read_message_data:main"
+create_schemas = "job_scripts.create_schemas:main"
