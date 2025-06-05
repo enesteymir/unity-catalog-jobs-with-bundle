@@ -1,0 +1,168 @@
+bundle:
+  name: customer-data-platform
+  git:
+    origin_url: "https://github.bus.zalan.do/Customer-360/customer-360-data-platform.git"
+
+variables:
+
+  prod_service_principal_id:
+    description: this is application id of "app_customer-360-unity-catalog+prod+sp@zalando.de"
+    default: "7d0119ee-45e1-49ca-be68-7c3e0baec696"
+
+  uat_service_principal_id:
+    description: this is application id of "app_customer-360-unity-catalog+uat+sp@zalando.de"
+    default: "d81d6eb5-413a-4cd0-81de-1aa01a14fe83"
+
+  test_service_principal_id:
+    description: this is application id of "app_customer-360-unity-catalog+test+sp@zalando.de"
+    default: "883dbeee-bcb7-4678-97da-34442708fea5"
+
+  service_principal_id:
+      description: defined by target
+
+  workspace_path:
+    description: "Workspace path"
+    default: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
+
+  environment:
+    description: the environment parameter value for jobs
+    default: "dev"
+
+  pause_status:
+    description: PAUSED or UNPAUSED
+    default: "PAUSED"
+
+  default_failure_notifications:
+    default:
+      - team-tracking-data-collection@zalando.de
+
+  base_cluster_policy_id:
+    description: The ID of the policy "multi-node-job-compute"
+    default: "000C4C22A965C098"
+
+  cost_allocation_id:
+    description: team sap to be found at https://sunrise.zalando.net/teams
+    default: 50051347
+
+  day:
+    description: the data snapshot date YYYY-MM-DD
+    default: "None"
+
+  start_day:
+    description: the start date with YYYY-MM-DD format
+    default: "None"
+
+  end_day:
+    description: the end date with YYYY-MM-DD format
+    default: "None"
+
+  shared_tags:
+    description: "Tags shared by all resources in the bundle"
+    type: "complex"
+    default: &SHARED_TAGS
+      cost_allocation: "50051347"
+      z_team: "t-rex"
+
+  warehouse_id:
+    description: "SQL Warehouse ID, for SQL only jobs using Unity Catalog"
+    default: "186be8dc68a874b0" # customer_360_warehouse-test
+
+include:
+  - job_definitions/*.yml
+
+artifacts:
+  default:
+    type: whl
+    build: poetry build
+    path: .
+    
+
+targets:
+  
+  # dev jobs with current user ownership
+  dev:
+    default: true
+    mode: development
+    presets:
+      tags:
+        <<: *SHARED_TAGS
+        env: dev
+    variables:
+      environment: dev
+      service_principal_id: ${var.test_service_principal_id}
+      pause_status: "PAUSED"
+      default_failure_notifications:
+        - ${workspace.current_user.userName}
+    permissions:
+      - level: CAN_MANAGE
+        group_name: "team-tracking"
+
+
+  # test jobs with test SP ownership
+  test:
+    mode: development
+    presets:
+      tags:
+        <<: *SHARED_TAGS
+        env: test
+    variables:
+      environment: test
+      service_principal_id: ${var.test_service_principal_id}
+      pause_status: "PAUSED"
+      warehouse_id: "186be8dc68a874b0" # customer_360_warehouse-test
+      default_failure_notifications:
+        - team-tracking-data-collection@zalando.de
+    run_as:
+      service_principal_name: ${var.test_service_principal_id}
+    permissions:
+      - level: CAN_MANAGE
+        service_principal_name: ${var.test_service_principal_id}
+      - level: CAN_MANAGE
+        group_name: "team-tracking"
+
+  # uat jobs with uat SP ownership
+  uat:
+    mode: production
+    presets:
+      tags:
+        <<: *SHARED_TAGS
+        env: uat
+    variables:
+      environment: uat
+      service_principal_id: ${var.uat_service_principal_id}
+      pause_status: "PAUSED"
+      warehouse_id: "3356db59938e9cca" # customer_360_warehouse-uat
+      default_failure_notifications:
+        - team-tracking-data-collection@zalando.de
+    run_as:
+      service_principal_name: ${var.uat_service_principal_id}
+    permissions:
+      - level: CAN_MANAGE
+        service_principal_name: ${var.uat_service_principal_id}
+      - level: CAN_MANAGE
+        service_principal_name: ${var.prod_service_principal_id}
+      - level: CAN_MANAGE
+        group_name: "team-tracking"
+
+
+  # production jobs with prod SP ownership
+  prod:
+    mode: production
+    presets:
+      tags:
+        <<: *SHARED_TAGS
+        env: prod
+    variables:
+      environment: prod
+      service_principal_id: ${var.prod_service_principal_id}
+      pause_status: "PAUSED"
+      warehouse_id: "d0bd2865280ef5cf" # customer_360_warehouse-prod
+      default_failure_notifications:
+        - team-tracking-data-collection@zalando.de
+    run_as:
+      service_principal_name: ${var.prod_service_principal_id}
+    permissions:
+      - level: CAN_MANAGE
+        service_principal_name: ${var.prod_service_principal_id}
+      - level: CAN_VIEW
+        group_name: "team-tracking"

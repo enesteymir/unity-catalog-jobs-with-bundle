@@ -1,0 +1,26 @@
+resources:
+  jobs:
+    unity_catalog_tables_updater:
+      name: "Customer-360 Unity Catalog Tables Updater"
+
+      schedule:
+        quartz_cron_expression: "0 0 5 * * ? *"
+        timezone_id: Europe/Berlin
+        pause_status: "PAUSED"
+
+      permissions:
+      - level: CAN_MANAGE
+        service_principal_name: ${var.service_principal_id}
+      - level: CAN_MANAGE
+        group_name: "team-tracking"
+
+      email_notifications:
+        on_failure: ${var.default_failure_notifications}
+
+      tasks:
+        - task_key: create_customer_360_schemas
+          sql_task:
+            warehouse_id: ${var.warehouse_id}
+            file:
+              path: ${var.workspace_path}/files/job_sources/unity_catalog_tables_updater/${var.environment}_create_customer_360_schemas.sql
+              source: WORKSPACE

@@ -1,0 +1,137 @@
+version: "2017-09-20"
+allow_concurrent_steps: true
+
+vm_parameters: &VM_PARAMS
+  type: linux
+  image: cdp-runtime/python-3.12
+
+
+all_parameters:
+  DATABRICKS_HOST: &DB_HOST "https://zalando-e2.cloud.databricks.com"
+
+
+databricks_parameters_sp_test: &DB_PARAMS_SP_TEST
+  DATABRICKS_HOST: *DB_HOST
+  DATABRICKS_CLIENT_ID: "883dbeee-bcb7-4678-97da-34442708fea5"  # SP application_id (app_customer-360-unity-catalog+test+sp@zalando.de)
+  DATABRICKS_CLIENT_SECRET:
+    secret_id: app_customer-360-unity-catalog+test+sp
+    secret_version: d6e33c76-d675-4c93-90c2-d794f7f1a9ec        # OAUTH2 token, converted to pseudo key in CDP service
+    available_in_pull_requests: true
+
+databricks_parameters_sp_uat: &DB_PARAMS_SP_UAT
+  DATABRICKS_HOST: *DB_HOST
+  DATABRICKS_CLIENT_ID: "d81d6eb5-413a-4cd0-81de-1aa01a14fe83"  # SP application_id (app_customer-360-unity-catalog+uat+sp@zalando.de)
+  DATABRICKS_CLIENT_SECRET:
+    secret_id: app_customer-360-unity-catalog+uat+sp
+    secret_version: 4b9069cd-fefa-4c27-9073-16e09d529351        # OAUTH2 token, converted to pseudo key in CDP service
+    available_in_pull_requests: true
+
+databricks_parameters_sp_prod: &DB_PARAMS_SP_PROD
+  DATABRICKS_HOST: *DB_HOST
+  DATABRICKS_CLIENT_ID: "7d0119ee-45e1-49ca-be68-7c3e0baec696"  # SP application_id (app_customer-360-unity-catalog+prod+sp@zalando.de)
+  DATABRICKS_CLIENT_SECRET:
+    secret_id: app_customer-360-unity-catalog+prod+sp
+    secret_version: 13b5de5c-ba8c-43a2-aaea-50e8111fcb00        # OAUTH2 token, converted to pseudo key in CDP service
+    available_in_pull_requests: true
+
+
+pipeline:
+
+    # Checking whether the branch is up-to-date before merge
+    - id: check-branch-up-to-date
+      desc: Check that feature branch is in sync with main before deploying AWS changes to dev environment
+      type: script
+      vm_config:
+        <<: *VM_PARAMS
+      when:
+        event: pull_request
+      commands:
+        - desc: check-feature-branch-in-sync-with-main-before-aws
+          cmd: |
+            git checkout #{CDP_SOURCE_BRANCH}
+            CHANGED_INFRA_FILES=$(git diff --name-only main | grep deploy/ || true)
+            if [ -z "$CHANGED_INFRA_FILES" ]
+            then
+                exit 0
+            fi
+            COMMIT_BEFORE=$(git log -n 1 --oneline)
+            git fetch
+            trap "git gh-comment 'The branch MUST be up to date with main branch to continue with deployment'; exit 1" ERR
+            git merge origin/main
+            COMMIT_AFTER=$(git log -n 1 --oneline)
+            if [ "$COMMIT_BEFORE" != "$COMMIT_AFTER" ]; then
+              git gh-comment 'The branch MUST be up to date with main branch to continue deployment'
+              exit 1
+            else
+              echo "Branch Up to Date with main branch"
+            fi
+
+
+
+
+    - id: bundle-deploy-test
+      desc: Deploy the resource in the test mode
+      depends_on: [ check-branch-up-to-date ]
+      type: script
+      vm_config:
+        <<: *VM_PARAMS
+      when:
+          event: pull_request
+      env:
+        <<: *DB_PARAMS_SP_TEST
+      commands:
+        - desc: "Install modules"
+          cmd: |
+            pip install poetry build wheel toml
+        - desc: "Validate Databricks Bundle"
+          cmd: |
+            databricks bundle validate -t test
+        - desc: "Bundle Deploy"
+          cmd: |
+            databricks bundle deploy -t test
+
+    - id: bundle-deploy-uat
+      desc: Deploy the resource in the uat mode
+      depends_on: [ check-branch-up-to-date, bundle-deploy-test ]
+      type: script
+      vm_config:
+        <<: *VM_PARAMS
+      when:
+          event: push
+          branch: main
+      env:
+        <<: *DB_PARAMS_SP_UAT
+      commands:
+        - desc: "Install modules"
+          cmd: |
+            pip install poetry build wheel toml
+        - desc: "Validate Databricks Bundle"
+          cmd: |
+            databricks bundle validate -t uat
+        - desc: "Bundle Deploy"
+          cmd: |
+            databricks bundle deploy -t uat
+
+    - id: bundle-deploy-production
+      desc: Deploy the resource in the production mode
+      depends_on: [ check-branch-up-to-date, bundle-deploy-uat ]
+      type: script
+      requires_human_approval: true
+      human_approval_timeout: '24h'
+      vm_config:
+        <<: *VM_PARAMS
+      when:
+          event: push
+          branch: main
+      env:
+        <<: *DB_PARAMS_SP_PROD
+      commands:
+        - desc: "Install modules"
+          cmd: |
+            pip install poetry build wheel toml
+        - desc: "Validate Databricks Bundle"
+          cmd: |
+            databricks bundle validate -t prod
+        - desc: "Bundle Deploy"
+          cmd: |
+            databricks bundle deploy -t prod

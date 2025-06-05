@@ -1,0 +1,56 @@
+resources:
+  jobs:
+    unity_catalog_tables_updater_pyspark:
+      name: "Customer-360 Unity Catalog Tables Updater PySpark"
+
+      schedule:
+        quartz_cron_expression: "0 0 5 * * ? *"
+        timezone_id: Europe/Berlin
+        pause_status: "PAUSED"
+
+      permissions:
+      - level: CAN_MANAGE
+        service_principal_name: ${var.service_principal_id}
+      - level: CAN_MANAGE
+        group_name: "team-tracking"
+
+      email_notifications:
+        on_failure: ${var.default_failure_notifications}
+
+      job_clusters:
+        - job_cluster_key: "UC_Update_Tables_PySpark_Job_Cluster"
+          new_cluster:
+            spark_version: "14.3.x-scala2.12"
+            runtime_engine: "STANDARD"
+            node_type_id: "rgd-fleet.xlarge"
+            driver_node_type_id: "rgd-fleet.xlarge"
+            autoscale:
+              min_workers: 1
+              max_workers: 4
+            aws_attributes:
+              availability: "SPOT_WITH_FALLBACK"
+              instance_profile_arn: "arn:aws:iam::728296428228:instance-profile/team-customer360-cluster-role"
+              zone_id: "auto"
+              first_on_demand: 1
+              spot_bid_price_percent: 70
+              ebs_volume_count: 0
+            policy_id: "000C4C22A965C098"
+            data_security_mode: "SINGLE_USER"
+            enable_elastic_disk: true
+            custom_tags:
+              cost_allocation: "50051347"
+              z_team: "t-rex"
+
+      tasks:
+        - task_key: "UC_Update_Tables_PySpark_Job_Create_Schemas_Task"
+          job_cluster_key: "UC_Update_Tables_PySpark_Job_Cluster"
+          python_wheel_task:
+            package_name: customer-data-platform
+            entry_point: create_schemas_job
+            named_parameters: { env: "${var.environment}" }
+          libraries:
+            - whl: ../dist/*.whl
+          timeout_seconds: 0
+          max_retries: 0
+          retry_on_timeout: true
+          run_if: "ALL_SUCCESS"
