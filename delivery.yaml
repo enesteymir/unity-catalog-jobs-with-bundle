@@ -15,7 +15,7 @@ databricks_parameters_sp_test: &DB_PARAMS_SP_TEST
   DATABRICKS_CLIENT_ID: "883dbeee-bcb7-4678-97da-34442708fea5"  # SP application_id (app_customer-360-unity-catalog+test+sp@zalando.de)
   DATABRICKS_CLIENT_SECRET:
     secret_id: app_customer-360-unity-catalog+test+sp
-    secret_version: d6e33c76-d675-4c93-90c2-d794f7f1a9ec        # OAUTH2 token, converted to pseudo key in CDP service
+    secret_version: d6e33c..........f1a9ec        # OAUTH2 token, converted to pseudo key in CDP service
     available_in_pull_requests: true
 
 databricks_parameters_sp_uat: &DB_PARAMS_SP_UAT
@@ -23,7 +23,7 @@ databricks_parameters_sp_uat: &DB_PARAMS_SP_UAT
   DATABRICKS_CLIENT_ID: "d81d6eb5-413a-4cd0-81de-1aa01a14fe83"  # SP application_id (app_customer-360-unity-catalog+uat+sp@zalando.de)
   DATABRICKS_CLIENT_SECRET:
     secret_id: app_customer-360-unity-catalog+uat+sp
-    secret_version: 4b9069cd-fefa-4c27-9073-16e09d529351        # OAUTH2 token, converted to pseudo key in CDP service
+    secret_version: 4b9069..........9d529351        # OAUTH2 token, converted to pseudo key in CDP service
     available_in_pull_requests: true
 
 databricks_parameters_sp_prod: &DB_PARAMS_SP_PROD
@@ -31,7 +31,7 @@ databricks_parameters_sp_prod: &DB_PARAMS_SP_PROD
   DATABRICKS_CLIENT_ID: "7d0119ee-45e1-49ca-be68-7c3e0baec696"  # SP application_id (app_customer-360-unity-catalog+prod+sp@zalando.de)
   DATABRICKS_CLIENT_SECRET:
     secret_id: app_customer-360-unity-catalog+prod+sp
-    secret_version: 13b5de5c-ba8c-43a2-aaea-50e8111fcb00        # OAUTH2 token, converted to pseudo key in CDP service
+    secret_version: 13b5de...........111fcb00        # OAUTH2 token, converted to pseudo key in CDP service
     available_in_pull_requests: true
 
 
