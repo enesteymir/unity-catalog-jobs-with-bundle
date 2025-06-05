@@ -1,7 +1,7 @@
 resources:
   jobs:
-    unity_catalog_tables_updater_pyspark:
-      name: "Customer-360 Unity Catalog Tables Updater PySpark"
+    unity_catalog_schemas_creator:
+      name: "Customer-360 Unity Catalog Schemas Creator"
 
       schedule:
         quartz_cron_expression: "0 0 5 * * ? *"
@@ -18,7 +18,7 @@ resources:
         on_failure: ${var.default_failure_notifications}
 
       job_clusters:
-        - job_cluster_key: "UC_Update_Tables_PySpark_Job_Cluster"
+        - job_cluster_key: "Create_UC_Schemas_Job_Cluster"
           new_cluster:
             spark_version: "14.3.x-scala2.12"
             runtime_engine: "STANDARD"
@@ -42,8 +42,8 @@ resources:
               z_team: "t-rex"
 
       tasks:
-        - task_key: "UC_Update_Tables_PySpark_Job_Create_Schemas_Task"
-          job_cluster_key: "UC_Update_Tables_PySpark_Job_Cluster"
+        - task_key: "Create_UC_Schemas_Task"
+          job_cluster_key: "Create_UC_Schemas_Job_Cluster"
           python_wheel_task:
             package_name: customer-data-platform
             entry_point: create_schemas_job
