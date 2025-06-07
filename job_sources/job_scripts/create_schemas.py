@@ -1,10 +1,22 @@
-from databricks.sdk import WorkspaceClient
+import argparse
 import yaml
 import logging
 from pyspark.sql import SparkSession
+import importlib.resources as pkg_resources
+from job_sources import config
 
-def load_config(path="config.yaml"):
-    with open(path) as f:
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
+
+def load_config():
+    with (
+        pkg_resources.files(config)
+                .joinpath("uc_schemas.yaml")
+                .open("r", encoding="utf-8") as f
+        ):
         return yaml.safe_load(f)
 
 def create_schema_and_grants(spark, config, env):
@@ -35,22 +47,17 @@ def create_schema_and_grants(spark, config, env):
             spark.sql(f"GRANT SELECT ON SCHEMA {full_schema} TO `{user}`")
 
 def main():
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(message)s",
-    )
-    logger = logging.getLogger(__name__)
-
     logger.info("Starting job to create schemas for customer-360 UC...")
     spark = SparkSession.builder.getOrCreate()
 
     logger.info("Loading configuration file...")
     config = load_config()
 
-    databricks_workspace_client = WorkspaceClient()
-    databricks_workspace_client.dbutils.widgets.text("env", "test")
-    # Get from the databricks widget passed as job variable
-    env = databricks_workspace_client.dbutils.widgets.get("env")
+    # Get the env parameter from the wheel parameters
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--env', type=str, help='Environment setting')
+    args = parser.parse_args()
+    env = args.env
 
     logger.info(f"\n=== Processing environment: {env} ===")
     create_schema_and_grants(spark, config, env)
