@@ -2,7 +2,7 @@ import argparse
 import yaml
 import logging
 from pyspark.sql import SparkSession
-import importlib.resources as pkg_resources
+import importlib.resources as pkg_resources  #for reading resource files that are bundled inside Python packages.
 from job_sources import config
 
 logger = logging.getLogger(__name__)
