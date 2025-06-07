@@ -5,7 +5,8 @@ description = "Customer360 Project to build meaningful customer data points"
 authors = ["Tracking Data Collection <team-tracking-data-collection@zalando.de>"]
 readme = "README.md"
 packages = [
-    { include = "job_scripts", from = "job_sources" }
+    { include = "job_scripts", from = "job_sources" },
+    { include = "config", from = "job_sources" }
 ]
 
 # Include, in the python bundles, all files that impact the software behaviour
