@@ -14,7 +14,7 @@ logging.basicConfig(
 def load_config():
     with (
         pkg_resources.files(config)
-                .joinpath("uc_schemas.yaml")
+                .joinpath("config.yaml")
                 .open("r", encoding="utf-8") as f
         ):
         return yaml.safe_load(f)
